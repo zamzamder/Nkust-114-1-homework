@@ -10,15 +10,25 @@ using System.Xml.Linq;
 
 class Program
 {
-    static readonly string JsonFile = "all_pokemon.json";
+    static readonly string JsonFile = Path.Combine("data", "all_pokemon.json");
 
     static async Task Main()
     {
-        // --- Step 1: 如果已有 JSON，就直接使用 ---
+        List<PokemonClean> pokemonList;
+
         if (File.Exists(JsonFile))
         {
             Console.WriteLine($" 偵測到現有的 {JsonFile}，將直接讀取本地資料！");
-            Console.WriteLine(" 完成！");
+            pokemonList = LoadPokemonFromJson(JsonFile);
+            Console.WriteLine($" 完成！成功讀取 {pokemonList.Count} 隻寶可夢");
+
+            // 顯示前 5 隻寶可夢的資訊
+            for (int i = 0; i < Math.Min(5, pokemonList.Count); i++)
+            {
+                var p = pokemonList[i];
+                Console.WriteLine($"{p.id} - {p.name} ({p.type1}) ({(string.IsNullOrEmpty(p.type2) ? "null" : p.type2)}) 血量:{p.hp} 攻擊:{p.attack} 防禦:{p.defense} 特攻:{p.sp_atk} 特防:{p.sp_def} 速度:{p.speed}");
+            }
+            return;
         }
         else
         {
@@ -109,15 +119,7 @@ class Program
             }
         }
 
-        var pokemonList = LoadPokemonFromJson(JsonFile);
-        Console.WriteLine($"共讀取 {pokemonList.Count} 隻寶可夢");
-
-        // 範例：列出前 5 隻
-        for (int i = 0; i < 5; i++)
-        {
-            var p = pokemonList[i];
-            Console.WriteLine($"{p.id} - {p.name} ({p.type1}) ({(string.IsNullOrEmpty(p.type2) ? "null" : p.type2)}) 血量:{p.hp} 攻擊:{p.attack} 防禦:{p.defense} 特攻:{p.sp_atk} 特防:{p.sp_def} 速度:{p.speed}");
-        }
+        // 如果程式從 API 下載了數據，會自動儲存並顯示
     }
 
     /// <summary>
