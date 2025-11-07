@@ -1,0 +1,23 @@
+{
+  "name": "my-node-project",
+  "version": "1.0.0",
+  "description": "A Node.js project for managing items.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "api"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "jest": "^27.0.6"
+  }
+}
