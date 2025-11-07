@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Xml.Linq;
 
 class Program
 {
@@ -23,11 +24,11 @@ class Program
         {
             // --- Step 2: 沒有 CSV → 自動從 API 下載 ---
             Console.WriteLine(" 未找到 CSV，正在從 PokeAPI 下載資料...");
-            string listUrl = "https://pokeapi.co/api/v2/pokemon?limit=2000";
+            string listUrl = "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0";
             async Task<JObject> GetPokemonSpeciesAsync(int id)
             {
                 using HttpClient client = new HttpClient();
-                string url = $"https://pokeapi.co/api/v2/pokemon-species/{id}/";
+                string url = $"https://pokeapi.co/api/v2/pokemon-species/{id}";
 
                 try
                 {
@@ -37,7 +38,7 @@ class Program
                 }
                 catch (HttpRequestException ex)
                 {
-                    Console.WriteLine($"抓取失敗：{ex.Message}");
+                    Console.WriteLine($"name:{id}抓取失敗：{ex.Message}");
                     return null;
                 }
             }
@@ -52,6 +53,7 @@ class Program
 
                 return zh != null ? zh["name"].ToString() : "無";
             }
+
             using (HttpClient client = new HttpClient())
             {
                 // 1️ 取得全 Pokémon 清單
@@ -66,17 +68,23 @@ class Program
 
                 PokemonRaw[] rawData = await Task.WhenAll(tasks);
 
-                Console.WriteLine($" 下載完成，共 {rawData.Length} 隻");
+                Console.WriteLine("下載中");
 
                 // 3️ 整理成乾淨格式
                 List<PokemonClean> cleanList = new List<PokemonClean>();
 
                 foreach (var p in rawData)
                 {
+                    string chineseName = await GetChineseName(p.id);
+
+                    // 如果中文不存在就用英文
+                    string finalName = string.IsNullOrEmpty(chineseName) || chineseName == "無"
+                                       ? p.name
+                                       : chineseName;
                     cleanList.Add(new PokemonClean
                     {
                         id = p.id,
-                        name =await GetChineseName(p.id),
+                        name = (await GetChineseName(p.id)),
                         type1 = p.types.Count > 0 ? p.types[0].type.name : null,
                         type2 = p.types.Count > 1 ? p.types[1].type.name : null,
 
