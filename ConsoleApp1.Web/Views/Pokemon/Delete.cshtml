@@ -1,0 +1,15 @@
+@model IDictionary<string, object?>
+@{
+    ViewData["Title"] = "刪除寶可夢";
+}
+
+<h2>刪除寶可夢</h2>
+<div class="alert alert-danger">
+    確定要刪除寶可夢： <strong>@(Model["Name"] ?? "(unknown)")</strong> (Id: @(Model["Id"]))？此動作無法復原。
+</div>
+
+<form method="post" asp-action="DeleteConfirmed">
+    <input type="hidden" name="id" value="@(Model["Id"])" />
+    <button type="submit" class="btn btn-danger">確定刪除</button>
+    <a class="btn btn-secondary ms-2" asp-action="Details" asp-route-id="@(Model["Id"])">取消</a>
+</form>

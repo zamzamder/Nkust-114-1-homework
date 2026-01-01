@@ -1,0 +1,154 @@
+@model IEnumerable<(int Id, string Name, int? Hp, int? Attack, int? Defense, int? SpAtk, int? SpDef, int? Speed, int? Height, int? Weight, string? Abilities)>
+@{
+    ViewData["Title"] = "Pokemon Search";
+}
+
+<h1>Pokémon 查詢</h1>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="q" value="@ViewBag.Query" class="form-control" placeholder="輸入 Id 或 名稱搜尋 (例: 1 或 妙蛙)" />
+        <button class="btn btn-primary" type="submit">搜尋</button>
+        <a class="btn btn-outline-secondary ms-2" href="/Pokemon">清除</a>
+    </div>
+</form>
+
+@{
+    var sortCur = (ViewBag.SortBy as string) ?? "id";
+    var sortDir = (ViewBag.SortDir as string) ?? "asc";
+    var names = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase)
+    {
+        { "id", "編號" }, { "name", "名稱" }, { "hp", "生命" }, { "attack", "攻擊" }, { "defense", "防禦" },
+        { "spatk", "特攻" }, { "spdef", "特防" }, { "speed", "速度" }, { "height", "高度" }, { "weight", "重量" }, { "abilities", "特性" }
+    };
+    var displayName = names.ContainsKey(sortCur) ? names[sortCur] : sortCur;
+    var dirText = sortDir.Equals("asc", System.StringComparison.OrdinalIgnoreCase) ? "由小到大" : "由大到小";
+}
+
+<div class="mb-2">排序：<strong>@displayName (@dirText)</strong></div>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-warning">@ViewBag.Message</div>
+}
+
+@{
+    var totalPages = ViewBag.TotalPages as int? ?? 0;
+    var current = ViewBag.Page as int? ?? 1;
+    var query = ViewBag.Query as string;
+    var start = ViewBag.PageStart as int? ?? 1;
+    var end = ViewBag.PageEnd as int? ?? totalPages;
+}
+
+@if (!Model.Any())
+{
+    <div class="text-muted">沒有結果。</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @{
+                        var curSort = ViewBag.SortBy as string;
+                        var curDir = ViewBag.SortDir as string ?? "asc";
+                        string Toggle(string key) => (string.Equals(curSort, key, System.StringComparison.OrdinalIgnoreCase) && curDir == "asc") ? "desc" : "asc";
+                        string Arrow(string key) => string.Equals(curSort, key, System.StringComparison.OrdinalIgnoreCase) ? (curDir == "asc" ? " ▲" : " ▼") : "";
+                        var toggleId = Toggle("id"); var arrowId = Arrow("id");
+                        var toggleName = Toggle("name"); var arrowName = Arrow("name");
+                        var toggleHp = Toggle("hp"); var arrowHp = Arrow("hp");
+                        var toggleAtk = Toggle("attack"); var arrowAtk = Arrow("attack");
+                        var toggleDef = Toggle("defense"); var arrowDef = Arrow("defense");
+                        var toggleSpA = Toggle("spatk"); var arrowSpA = Arrow("spatk");
+                        var toggleSpD = Toggle("spdef"); var arrowSpD = Arrow("spdef");
+                        var toggleSpd = Toggle("speed"); var arrowSpd = Arrow("speed");
+                        var toggleH = Toggle("height"); var arrowH = Arrow("height");
+                        var toggleW = Toggle("weight"); var arrowW = Arrow("weight");
+                        var toggleAb = Toggle("abilities"); var arrowAb = Arrow("abilities");
+                    }
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="id" asp-route-sortDir="@toggleId" asp-route-q="@query">編號@Html.Raw(arrowId)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="name" asp-route-sortDir="@toggleName" asp-route-q="@query">名稱@Html.Raw(arrowName)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="hp" asp-route-sortDir="@toggleHp" asp-route-q="@query">生命@Html.Raw(arrowHp)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="attack" asp-route-sortDir="@toggleAtk" asp-route-q="@query">攻擊@Html.Raw(arrowAtk)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="defense" asp-route-sortDir="@toggleDef" asp-route-q="@query">防禦@Html.Raw(arrowDef)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="spatk" asp-route-sortDir="@toggleSpA" asp-route-q="@query">特攻@Html.Raw(arrowSpA)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="spdef" asp-route-sortDir="@toggleSpD" asp-route-q="@query">特防@Html.Raw(arrowSpD)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="speed" asp-route-sortDir="@toggleSpd" asp-route-q="@query">速度@Html.Raw(arrowSpd)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="height" asp-route-sortDir="@toggleH" asp-route-q="@query">高度@Html.Raw(arrowH)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="weight" asp-route-sortDir="@toggleW" asp-route-q="@query">重量@Html.Raw(arrowW)</a>
+                </th>
+                <th>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-sortBy="abilities" asp-route-sortDir="@toggleAb" asp-route-q="@query">特性@Html.Raw(arrowAb)</a>
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Id</td>
+                <td>@p.Name</td>
+                <td>@(p.Hp?.ToString() ?? "")</td>
+                <td>@(p.Attack?.ToString() ?? "")</td>
+                <td>@(p.Defense?.ToString() ?? "")</td>
+                <td>@(p.SpAtk?.ToString() ?? "")</td>
+                <td>@(p.SpDef?.ToString() ?? "")</td>
+                <td>@(p.Speed?.ToString() ?? "")</td>
+                <td>@(p.Height?.ToString() ?? "")</td>
+                <td>@(p.Weight?.ToString() ?? "")</td>
+                <td>@(p.Abilities ?? "")</td>
+                <td>
+                    <a class="btn btn-sm btn-link" asp-action="Details" asp-route-id="@p.Id">詳細</a>
+                    <a class="btn btn-sm btn-danger ms-2" asp-action="Delete" asp-route-id="@p.Id">刪除</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item @(current == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-q="@query">第一頁</a>
+            </li>
+            <li class="page-item @(current <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@Math.Max(1, current-1)" asp-route-q="@query">&laquo;</a>
+            </li>
+            @for (int i = start; i <= end; i++)
+            {
+                <li class="@(i == current ? "page-item active" : "page-item")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-q="@query">@i</a>
+                </li>
+            }
+            <li class="page-item @(current >= totalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@Math.Min(totalPages, current+1)" asp-route-q="@query">&raquo;</a>
+            </li>
+            <li class="page-item @(current == totalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@totalPages" asp-route-q="@query">最後頁</a>
+            </li>
+        </ul>
+    </nav>
+}

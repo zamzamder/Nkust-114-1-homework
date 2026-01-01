@@ -1,0 +1,52 @@
+@model ConsoleApp1.Web.Models.PokemonEditModel
+@{
+    ViewData["Title"] = Model.Id > 0 ? "修改寶可夢" : "新增寶可夢";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="post" asp-action="Upsert">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <div class="mb-3">
+        <label class="form-label">名稱</label>
+        <input name="Name" class="form-control" value="@Model.Name" />
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">屬性1</label>
+            <input name="Type1" class="form-control" value="@Model.Type1" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">屬性2</label>
+            <input name="Type2" class="form-control" value="@Model.Type2" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 mb-3"><label class="form-label">生命</label><input name="Hp" class="form-control" value="@Model.Hp" /></div>
+        <div class="col-md-3 mb-3"><label class="form-label">攻擊</label><input name="Attack" class="form-control" value="@Model.Attack" /></div>
+        <div class="col-md-3 mb-3"><label class="form-label">防禦</label><input name="Defense" class="form-control" value="@Model.Defense" /></div>
+        <div class="col-md-3 mb-3"><label class="form-label">特攻</label><input name="SpAtk" class="form-control" value="@Model.SpAtk" /></div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 mb-3"><label class="form-label">特防</label><input name="SpDef" class="form-control" value="@Model.SpDef" /></div>
+        <div class="col-md-3 mb-3"><label class="form-label">速度</label><input name="Speed" class="form-control" value="@Model.Speed" /></div>
+        <div class="col-md-3 mb-3"><label class="form-label">高度</label><input name="Height" class="form-control" value="@Model.Height" /></div>
+        <div class="col-md-3 mb-3"><label class="form-label">重量</label><input name="Weight" class="form-control" value="@Model.Weight" /></div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">特性 (逗號分隔)</label>
+        <input name="Abilities" class="form-control" value="@Model.Abilities" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">招式 (簡短)</label>
+        <input name="Moves" class="form-control" value="@Model.Moves" />
+    </div>
+
+    <div class="d-flex">
+        <button class="btn btn-primary me-2" type="submit">儲存</button>
+        <a class="btn btn-secondary" asp-action="Index">取消</a>
+    </div>
+</form>
